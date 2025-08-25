@@ -3,11 +3,11 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 # from langchain.embeddings import OpenAIEmbeddings
-from langchain_openai import OpenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
-import chromadb
-from chromadb.utils import embedding_functions
-import openai 
+#import chromadb
+#from chromadb.utils import embedding_functions
+#import openai 
 from dotenv import load_dotenv
 import os
 import shutil
@@ -15,22 +15,10 @@ import shutil
 
 # Setting my API key
 load_dotenv()
-openai.api_key = os.environ['OPENAI_API_KEY']
+#openai.api_key = os.environ['OPENAI_API_KEY']
 
-# Initialize Chroma client (local persistent DB)
-chroma_client = chromadb.PersistentClient(path="chroma_store")
+CHROMA_PATH = "chroma"
 
-# Use OpenAI for embeddings
-openai_ef = embedding_functions.OpenAIEmbeddingFunction(
-    api_key=openai.api_key,
-    model_name="text-embedding-3-small"
-)
-
-# Our main collection
-collection = chroma_client.get_or_create_collection(
-    name="personal_codex",
-    embedding_function=openai_ef
-)
 
 def load_documents():
     categories = ["professional", "academic", "personal"]
@@ -62,9 +50,28 @@ def split_text(documents: list[Document]):
 
     return chunks
 
+
+def save_to_chroma(chunks: list[Document]):
+    # Clear out the database first.
+    if os.path.exists(CHROMA_PATH):
+        shutil.rmtree(CHROMA_PATH)
+
+    # Create a new DB from the documents.
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    db = Chroma.from_documents(
+        chunks, embeddings, persist_directory=CHROMA_PATH
+    )
+    db.persist()
+    print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
+
+def generate_data_store():
+    documents = load_documents()
+    chunks = split_text(documents)
+    save_to_chroma(chunks)
+    print("Everything saved!")
+
 def main():
-    docs = load_documents()
-    chunks = split_text(docs)
+    generate_data_store()
     
 
 if __name__ == "__main__":
