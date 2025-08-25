@@ -5,7 +5,7 @@ from langchain.schema import Document
 # from langchain.embeddings import OpenAIEmbeddings
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
-#import chromadb
+import chromadb
 #from chromadb.utils import embedding_functions
 #import openai 
 from dotenv import load_dotenv
@@ -18,6 +18,7 @@ load_dotenv()
 #openai.api_key = os.environ['OPENAI_API_KEY']
 
 CHROMA_PATH = "chroma"
+DEFAULT_COLLECTION_NAME = "langchain"
 
 
 def load_documents():
@@ -52,14 +53,22 @@ def split_text(documents: list[Document]):
 
 
 def save_to_chroma(chunks: list[Document]):
-    # Clear out the database first.
-    if os.path.exists(CHROMA_PATH):
-        shutil.rmtree(CHROMA_PATH)
+    # 1. Create a client to connect to the Chroma database
+    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    
+    # 2. Try to get the collection. If it exists, we delete it.
+    try:
+        print(f"Clearing old data from collection: '{DEFAULT_COLLECTION_NAME}'")
+        client.delete_collection(name=DEFAULT_COLLECTION_NAME)
+    except chromadb.errors.NotFoundError:
+        # This error is thrown if the collection does not exist, which is fine.
+        print("Collection not found, creating a new one.")
+        pass
 
     # Create a new DB from the documents.
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     db = Chroma.from_documents(
-        chunks, embeddings, persist_directory=CHROMA_PATH
+        chunks, embeddings, collection_name=DEFAULT_COLLECTION_NAME, persist_directory=CHROMA_PATH
     )
     db.persist()
     print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
