@@ -1,0 +1,82 @@
+import argparse
+import os
+import sys
+from typing import List, Optional
+import chromadb
+import google.generativeai as genai
+from langchain_community.vectorstores import Chroma
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain.schema import Document
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+CHROMA_PATH = "chroma"
+DEFAULT_COLLECTION_NAME = "langchain"
+
+def main():
+    # Set up argument parsing to get the query from the command line
+    parser = argparse.ArgumentParser(description="Query the RAG system.")
+    parser.add_argument("query_text", type=str, help="The text query to search for.")
+    args = parser.parse_args()
+    query_text = args.query_text
+
+    # Load the vector database with the pre-trained embeddings
+    embedding_function = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    db = Chroma(
+        persist_directory=CHROMA_PATH,
+        embedding_function=embedding_function,
+        collection_name=DEFAULT_COLLECTION_NAME
+    )
+
+    # k=3 retrieves the top 3 most similar documents to the user's query
+    results: List[Document] = db.similarity_search_with_score(query_text, k=3)
+
+    # Get the context from the retrieved documents
+    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+    
+    print(f"--- Retrieved Context ---")
+    print(context_text)
+    print("-------------------------\n")
+
+    # Define the prompt template that gives the agent its context
+    PROMPT_TEMPLATE = """
+    You are an assistant that can answer questions on behalf of Qaanit Baderoen. You use his provided data to answer questions like he would.
+    If you cannot find the answer in the provided context, politely say that you don't have enough information.
+
+    Context:
+    {context}
+
+    ---
+
+    Question: {question}
+    """
+    
+    # Format the prompt with the retrieved context and user's question
+    prompt = PROMPT_TEMPLATE.format(context=context_text, question=query_text)
+
+    # Initialize the LLM
+    try:
+        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+    except KeyError:
+        print("Error: GOOGLE_API_KEY not found in environment variables.")
+        print("Please set your API key in a .env file or as an environment variable.")
+        sys.exit(1)
+
+    llm = genai.GenerativeModel('gemini-1.5-flash-latest')
+
+    # Generate the response
+    print("--- Generating Response ---")
+    response = llm.generate_content(prompt)
+    print("--------------------------\n")
+    print(response.text)
+
+    # Print the sources of the information
+    print("\n--- Sources ---")
+    for doc, _score in results:
+        print(f"Source: {doc.metadata.get('source')} (Start Index: {doc.metadata.get('start_index')})")
+
+
+if __name__ == "__main__":
+    main()
