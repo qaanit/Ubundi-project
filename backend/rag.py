@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import chromadb
 import google.generativeai as genai
 from langchain_community.vectorstores import Chroma
@@ -15,12 +15,17 @@ load_dotenv()
 CHROMA_PATH = "chroma"
 DEFAULT_COLLECTION_NAME = "langchain"
 
-def main():
-    # Set up argument parsing to get the query from the command line
-    parser = argparse.ArgumentParser(description="Query the RAG system.")
-    parser.add_argument("query_text", type=str, help="The text query to search for.")
-    args = parser.parse_args()
-    query_text = args.query_text
+def get_rag_response(query_text: str, tone: Optional[str] = None) -> Tuple[str, List[str]]:
+    """
+    Performs a RAG query and returns the response and sources.
+    
+    Args:
+        query_text (str): The user's query.
+        tone (Optional[str]): The desired tone for the response (e.g., "formal", "casual").
+    
+    Returns:
+        Tuple[str, List[str]]: The generated response text and a list of source documents.
+    """
 
     # Load the vector database with the pre-trained embeddings
     embedding_function = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
@@ -35,15 +40,13 @@ def main():
 
     # Get the context from the retrieved documents
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
-    
-    print(f"--- Retrieved Context ---")
-    print(context_text)
-    print("-------------------------\n")
 
     # Define the prompt template that gives the agent its context
     PROMPT_TEMPLATE = """
     You are an assistant that can answer questions on behalf of Qaanit Baderoen. You use his provided data to answer questions like he would.
     If you cannot find the answer in the provided context, politely say that you don't have enough information.
+
+    {tone_instruction}
 
     Context:
     {context}
@@ -52,9 +55,11 @@ def main():
 
     Question: {question}
     """
+
+    tone_instruction = f"Provide an answer using a {tone} tone." if tone else ""
     
     # Format the prompt with the retrieved context and user's question
-    prompt = PROMPT_TEMPLATE.format(context=context_text, question=query_text)
+    prompt = PROMPT_TEMPLATE.format(tone_instruction=tone_instruction, context=context_text, question=query_text)
 
     # Initialize the LLM
     try:
@@ -67,16 +72,21 @@ def main():
     llm = genai.GenerativeModel('gemini-1.5-flash-latest')
 
     # Generate the response
-    print("--- Generating Response ---")
     response = llm.generate_content(prompt)
-    print("--------------------------\n")
-    print(response.text)
+    sources = [doc.metadata.get('source') for doc, _score in results]
 
-    # Print the sources of the information
-    print("\n--- Sources ---")
-    for doc, _score in results:
-        print(f"Source: {doc.metadata.get('source')} (Start Index: {doc.metadata.get('start_index')})")
+    return response.text, sources
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Query the RAG system.")
+    parser.add_argument("query_text", type=str, help="The text query to search for.")
+    parser.add_argument("--tone", type=str, default=None, help="The desired tone for the response.")
+    args = parser.parse_args()
+    
+    try:
+        response_text, sources = get_rag_response(args.query_text, args.tone)
+        print("Response:", response_text)
+        print("\nSources:", sources)
+    except (FileNotFoundError, ValueError, EnvironmentError) as e:
+        print(f"Error: {e}")
