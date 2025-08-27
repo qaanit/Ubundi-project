@@ -9,6 +9,7 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const chatEndRef = useRef(null);
+  const [showUpload, setShowUpload] = useState(false);
 
   const tones = ["Default", "Professional", "Casual","Concise"];
 
@@ -92,9 +93,48 @@ const App = () => {
 
   return (
     <div className="app">
+      <div className="sidebar">
+      <h2>Tools</h2>
+  <button 
+    onClick={() => setShowUpload(!showUpload)} 
+    style={{ marginBottom: "0.5rem" }}
+  >
+    {showUpload ? "Hide Upload" : "Upload File"}
+  </button>
+
+  <div className={`upload-form ${showUpload ? "open" : ""}`}>
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("file", e.target.file.files[0]);
+        formData.append("category", e.target.category.value);
+
+        try {
+          const res = await fetch("http://127.0.0.1:8000/upload", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+          alert(data.message || "Upload successful!");
+        } catch (err) {
+          alert("Upload failed: " + err.message);
+        }
+      }}
+    >
+      <input type="file" name="file" required />
+      <select name="category" required>
+        <option value="professional">Professional</option>
+        <option value="academic">Academic</option>
+        <option value="personal">Personal</option>
+      </select>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+    </div>
       <div className="chat-container">
         <header className="chat-header">
-          <h1>Qaanit-Bot</h1>
+          <h1>QaanitGPT</h1>
         </header>
 
         <div className="chat-history">
@@ -111,7 +151,7 @@ const App = () => {
 
           {loading && (
             <div className="loading">
-              <TailSpin color="#3B82F6" height={30} width={30} />
+              <TailSpin color="#fff" height={30} width={30} />
             </div>
           )}
 

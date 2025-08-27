@@ -3,7 +3,7 @@
 import os
 import sys
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware # Import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -12,7 +12,7 @@ from typing import List, Optional
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Import the necessary functions from your other scripts
-from embeddings import CHROMA_PATH
+from embeddings import CHROMA_PATH, embed_single_file
 from rag import get_rag_response
 
 # Define the FastAPI app
@@ -95,6 +95,32 @@ async def query_agent(request: QueryRequest):
             status_code=500,
             detail=f"An error occurred while processing the query: {str(e)}"
         )
+    
+
+
+@app.post("/upload")
+async def upload_file(category: str = Form(...), file: UploadFile = File(...)):
+    """
+    Upload a file, save to local category folder, and embed into ChromaDB.
+    """
+    valid_categories = ["professional", "academic", "personal"]
+    if category not in valid_categories:
+        raise HTTPException(status_code=400, detail=f"Invalid category. Choose from {valid_categories}.")
+
+    save_dir = os.path.join("data", category)
+    os.makedirs(save_dir, exist_ok=True)
+    file_path = os.path.join(save_dir, file.filename)
+
+    try:
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+
+        # Embed and add to Chroma
+        embed_single_file(file_path, category)
+        return {"message": f"File '{file.filename}' uploaded and embedded under {category}."}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 # --- Uvicorn Server Command ---
 # To run this file, save it as main.py and execute the following command in your terminal:

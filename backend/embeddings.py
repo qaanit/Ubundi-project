@@ -73,6 +73,32 @@ def save_to_chroma(chunks: list[Document]):
     db.persist()
     print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
+def embed_single_file(file_path: str, category: str):
+    """
+    Embed a single new file and add it to ChromaDB without wiping the DB.
+    """
+    from langchain_community.document_loaders import TextLoader
+    
+    loader = TextLoader(file_path)
+    documents = loader.load()
+
+    chunks = split_text(documents)
+
+    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+
+    # Connect to existing collection
+    db = Chroma(
+        persist_directory=CHROMA_PATH,
+        embedding_function=embeddings,
+        collection_name=DEFAULT_COLLECTION_NAME
+    )
+
+    db.add_documents(chunks)
+    db.persist()
+    print(f"Added {len(chunks)} chunks from {file_path} to {CHROMA_PATH}.")
+
+
 def generate_data_store():
     documents = load_documents()
     chunks = split_text(documents)
