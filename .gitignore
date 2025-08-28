@@ -1,0 +1,8 @@
+# root
+.env
+.DS_Store
+
+# backend
+backend/.env
+backend/chroma_store/
+backend/__pycache__/

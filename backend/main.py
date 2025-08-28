@@ -15,6 +15,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from embeddings import CHROMA_PATH, embed_single_file
 from rag import get_rag_response
 
+ALLOW_ORIGIN = os.getenv("ALLOW_ORIGIN", "*")
+
 # Define the FastAPI app
 app = FastAPI(
     title="RAG Agent API",
@@ -31,7 +33,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[ALLOW_ORIGIN] if ALLOW_ORIGIN != "*" else ["*"],
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods (GET, POST, OPTIONS, etc.)
     allow_headers=["*"],  # Allows all headers

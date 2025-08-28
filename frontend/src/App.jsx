@@ -28,7 +28,8 @@ const App = () => {
     setError("");
 
     try {
-      const backendUrl = "http://127.0.0.1:8000/query";
+      const API_BASE = process.env.REACT_APP_API_BASE;
+      const backendUrl = `${API_BASE}/query`;
       const response = await fetch(backendUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -111,7 +112,8 @@ const App = () => {
         formData.append("category", e.target.category.value);
 
         try {
-          const res = await fetch("http://127.0.0.1:8000/upload", {
+          const API_BASE = process.env.REACT_APP_API_BASE;
+          const res = await fetch(`${API_BASE}/upload`, {
             method: "POST",
             body: formData,
           });
