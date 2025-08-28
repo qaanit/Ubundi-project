@@ -29,7 +29,7 @@ app = FastAPI(
 # so we need to tell the backend to allow requests from it.
 origins = [
     #"http://localhost:5173",  # The URL of your React development server
-    "https://qaanitgpt-e48i4ymoe-qaanit-baderoens-projects.vercel.app",
+    "https://qaanitgpt.vercel.app",
 ]
 
 app.add_middleware(
