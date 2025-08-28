@@ -132,9 +132,13 @@ const App = () => {
     </form>
   </div>
     </div>
+    <div className="chat-wrapper">
       <div className="chat-container">
         <header className="chat-header">
+          <div className="chat-title">
+          <img src="/ai2.png" alt="Logo" className="chat-logo" />
           <h1>QaanitGPT</h1>
+          </div>
         </header>
 
         <div className="chat-history">
@@ -180,6 +184,7 @@ const App = () => {
           </button>
         </form>
       </div>
+    </div>
     </div>
   );
 };

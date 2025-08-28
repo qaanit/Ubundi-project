@@ -36,15 +36,18 @@ def get_rag_response(query_text: str, tone: Optional[str] = None) -> Tuple[str, 
     )
 
     # k=3 retrieves the top 3 most similar documents to the user's query
-    results: List[Document] = db.similarity_search_with_score(query_text, k=3)
+    results: List[Document] = db.similarity_search_with_score(query_text, k=4)
 
     # Get the context from the retrieved documents
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
 
     # Define the prompt template that gives the agent its context
     PROMPT_TEMPLATE = """
-    You are an assistant that can answer questions on behalf of Qaanit Baderoen. You use his provided data to answer questions like he would.
-    If you cannot find the answer in the provided context, politely say that you don't have enough information.
+    You are acting as Qaanit Baderoen (Answer in first person).
+    You have access to his professional, personal and academic documents. 
+    Make your response sound human-like — avoid robotic phrasing and avoid greeting. Avoid using em dashes.
+    When using information from the knowledge base, phrase it as if you're recalling it yourself.
+    If you cannot find the answer in the provided context, politely say that you do not know (As if you were Qaanit).
 
     {tone_instruction}
 
@@ -54,9 +57,11 @@ def get_rag_response(query_text: str, tone: Optional[str] = None) -> Tuple[str, 
     ---
 
     Question: {question}
+
+    Respond in the first person, as if you are Qaanit.
     """
 
-    tone_instruction = f"Provide an answer using a {tone} tone." if tone else ""
+    tone_instruction = f"Provide your answer using a {tone} tone." if tone else ""
     
     # Format the prompt with the retrieved context and user's question
     prompt = PROMPT_TEMPLATE.format(tone_instruction=tone_instruction, context=context_text, question=query_text)

@@ -22,7 +22,7 @@ DEFAULT_COLLECTION_NAME = "langchain"
 
 
 def load_documents():
-    categories = ["professional", "personal"]
+    categories = ["professional", "personal", "academic"]
     documents = []
 
     for c in categories:
@@ -36,7 +36,7 @@ def load_documents():
 def split_text(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=500, # chosen for the relatively small size of the documents
-        chunk_overlap=50,
+        chunk_overlap=100,
         length_function=len,
         add_start_index=True,
     )
