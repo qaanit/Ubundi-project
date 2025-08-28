@@ -29,7 +29,7 @@ const App = () => {
 
     try {
       const API_BASE = process.env.REACT_APP_API_BASE;
-      const backendUrl = `${API_BASE}/query`;
+      const backendUrl = "https://ubundi-project.onrender.com/query";
       const response = await fetch(backendUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,7 +113,7 @@ const App = () => {
 
         try {
           const API_BASE = process.env.REACT_APP_API_BASE;
-          const res = await fetch(`${API_BASE}/upload`, {
+          const res = await fetch("https://ubundi-project.onrender.com/upload", {
             method: "POST",
             body: formData,
           });
