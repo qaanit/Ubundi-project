@@ -29,11 +29,12 @@ app = FastAPI(
 # so we need to tell the backend to allow requests from it.
 origins = [
     "http://localhost:5173",  # The URL of your React development server
+    "https://qaanitgpt-jn7o5h47f-qaanit-baderoens-projects.vercel.app/",
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[ALLOW_ORIGIN] if ALLOW_ORIGIN != "*" else ["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods (GET, POST, OPTIONS, etc.)
     allow_headers=["*"],  # Allows all headers
