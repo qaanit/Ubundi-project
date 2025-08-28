@@ -28,7 +28,7 @@ app = FastAPI(
 # Your frontend (http://localhost:5173) is a different origin,
 # so we need to tell the backend to allow requests from it.
 origins = [
-    "http://localhost:5173",  # The URL of your React development server
+    #"http://localhost:5173",  # The URL of your React development server
     "https://qaanitgpt-jn7o5h47f-qaanit-baderoens-projects.vercel.app/",
 ]
 
