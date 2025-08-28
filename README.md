@@ -1,5 +1,5 @@
 # QaanitGPT – RAG Agent
-#### QaanitGPT is a personal knowledge agent that uses FastAPI, ChromaDB, and OpenAI embeddings to store and query personal, academic, and professional documents.
+#### QaanitGPT is a personal knowledge agent that uses FastAPI, ChromaDB, and Google Gemini embeddings to store and query personal, academic, and professional documents.
 #### The frontend is built with React and deployed on Vercel, while the backend runs on Render.
 
 #### This project acts as a digital extension of myself — able to answer questions in my voice by retrieving context from uploaded documents (Markdown files, CV, cover letters, personal writing, etc.).  
