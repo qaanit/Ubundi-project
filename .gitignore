@@ -6,3 +6,5 @@
 backend/.env
 backend/chroma_store/
 backend/__pycache__/
+
+frontend/.env
