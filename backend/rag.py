@@ -74,7 +74,7 @@ def get_rag_response(query_text: str, tone: Optional[str] = None) -> Tuple[str, 
         print("Please set your API key in a .env file or as an environment variable.")
         sys.exit(1)
 
-    llm = genai.GenerativeModel('gemini-1.5-flash-latest')
+    llm = genai.GenerativeModel('gemini-2.5-flash')
 
     # Generate the response
     response = llm.generate_content(prompt)
