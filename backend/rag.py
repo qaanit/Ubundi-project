@@ -6,7 +6,7 @@ import chromadb
 import google.generativeai as genai
 from langchain_community.vectorstores import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain.schema import Document
+from langchain_core.documents import Document
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
