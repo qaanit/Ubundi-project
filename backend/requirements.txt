@@ -16,4 +16,4 @@ google-auth-httplib2
 google-generativeai
 googleapis-common-protos
 python-multipart
-langchain==0.0.340
+langchain
