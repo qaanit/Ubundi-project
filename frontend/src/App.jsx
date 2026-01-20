@@ -11,7 +11,7 @@ const App = () => {
   const chatEndRef = useRef(null);
   const [showUpload, setShowUpload] = useState(false);
 
-  const tones = ["Default", "Professional", "Casual","Concise"];
+  const tones = ["Default", "Professional", "Casual", "Concise"];
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -95,98 +95,99 @@ const App = () => {
   return (
     <div className="app">
       <div className="sidebar">
-      <h2>Tools</h2>
-  <button 
-    onClick={() => setShowUpload(!showUpload)} 
-    style={{ marginBottom: "0.5rem" }}
-  >
-    {showUpload ? "Hide Upload" : "Upload File"}
-  </button>
+        <h2>Tools</h2>
+        <button
+          onClick={() => setShowUpload(!showUpload)}
+          style={{ marginBottom: "0.5rem" }}
+          disabled
+        >
+          {showUpload ? "Hide Upload" : "Upload File"}
+        </button>
 
-  <div className={`upload-form ${showUpload ? "open" : ""}`}>
-    <form
-      onSubmit={async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append("file", e.target.file.files[0]);
-        formData.append("category", e.target.category.value);
+        <div className={`upload-form ${showUpload ? "open" : ""}`}>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData();
+              formData.append("file", e.target.file.files[0]);
+              formData.append("category", e.target.category.value);
 
-        try {
-          const API_BASE = process.env.REACT_APP_API_BASE;
-          const res = await fetch("https://ubundi-project.onrender.com/upload", {
-            method: "POST",
-            body: formData,
-          });
-          const data = await res.json();
-          alert(data.message || "Upload successful!");
-        } catch (err) {
-          alert("Upload failed: " + err.message);
-        }
-      }}
-    >
-      <input type="file" name="file" required />
-      <select name="category" required>
-        <option value="professional">Professional</option>
-        <option value="academic">Academic</option>
-        <option value="personal">Personal</option>
-      </select>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-    </div>
-    <div className="chat-wrapper">
-      <div className="chat-container">
-        <header className="chat-header">
-          <div className="chat-title">
-          <img src="/ai2.png" alt="Logo" className="chat-logo" />
-          <h1>QaanitGPT</h1>
-          </div>
-        </header>
-
-        <div className="chat-history">
-          {messages.length === 0 && (
-            <div className="welcome-screen">
-              <h2>Hello,</h2>
-              <p>Ask a question about Qaanit to get started.</p>
-            </div>
-          )}
-
-          {messages.map((msg, index) => (
-            <Message key={index} message={msg} />
-          ))}
-
-          {loading && (
-            <div className="loading">
-              <TailSpin color="#fff" height={30} width={30} />
-            </div>
-          )}
-
-          {error && <div className="error-text">{error}</div>}
-
-          <div ref={chatEndRef} />
+              try {
+                const API_BASE = process.env.REACT_APP_API_BASE;
+                const res = await fetch("https://ubundi-project.onrender.com/upload", {
+                  method: "POST",
+                  body: formData,
+                });
+                const data = await res.json();
+                alert(data.message || "Upload successful!");
+              } catch (err) {
+                alert("Upload failed: " + err.message);
+              }
+            }}
+          >
+            <input type="file" name="file" required />
+            <select name="category" required>
+              <option value="professional">Professional</option>
+              <option value="academic">Academic</option>
+              <option value="personal">Personal</option>
+            </select>
+            <button type="submit">Submit</button>
+          </form>
         </div>
-
-        <form onSubmit={handleSubmit} className="chat-input">
-          <select value={tone} onChange={(e) => setTone(e.target.value)}>
-            {tones.map((t) => (
-              <option key={t} value={t === "Default" ? "" : t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder=" Ask a question..."
-            disabled={loading}
-          />
-          <button type="submit" disabled={loading}>
-            Send
-          </button>
-        </form>
       </div>
-    </div>
+      <div className="chat-wrapper">
+        <div className="chat-container">
+          <header className="chat-header">
+            <div className="chat-title">
+              <img src="/ai2.png" alt="Logo" className="chat-logo" />
+              <h1>QaanitGPT</h1>
+            </div>
+          </header>
+
+          <div className="chat-history">
+            {messages.length === 0 && (
+              <div className="welcome-screen">
+                <h2>Hello,</h2>
+                <p>Ask a question about Qaanit to get started.</p>
+              </div>
+            )}
+
+            {messages.map((msg, index) => (
+              <Message key={index} message={msg} />
+            ))}
+
+            {loading && (
+              <div className="loading">
+                <TailSpin color="#fff" height={30} width={30} />
+              </div>
+            )}
+
+            {error && <div className="error-text">{error}</div>}
+
+            <div ref={chatEndRef} />
+          </div>
+
+          <form onSubmit={handleSubmit} className="chat-input">
+            <select value={tone} onChange={(e) => setTone(e.target.value)}>
+              {tones.map((t) => (
+                <option key={t} value={t === "Default" ? "" : t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder=" Ask a question..."
+              disabled={loading}
+            />
+            <button type="submit" disabled={loading}>
+              Send
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
