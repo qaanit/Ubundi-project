@@ -6,7 +6,7 @@
 
 ## ⚡ Where to find & how to use
 Please visit my project at the link provided in my Github repo. Please ask me (the agent) any questions about my career/education/projects/background.
-- ⚠️ **DO NOT UPLOAD ANY FILES WHATSOEVER**, this feature DOES work and the files will be added to the vector storage. This could drastically change the answers the agent produces. The feature was only added as a proof of concept.
+- ⚠️ **DO NOT UPLOAD ANY FILES WHATSOEVER**, this feature DOES work and the files will be added to the vector storage. This could drastically change the answers the agent produces. The feature was only added as a proof of concept. (This feature has been disabled to prevent accidental file uploads)
 - ⚠️ Please try not to ask TOO MANY questions too fast, as my API key only has a few (but enough for thorough testing) tokens.
 - ⚠️ When asking a question for the first time, the backend will have to 'wake up'. You might get an error for your first query but send a second one and it will work correctly.
 
